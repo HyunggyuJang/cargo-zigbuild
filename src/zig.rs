@@ -211,10 +211,17 @@ impl Zig {
             if let Some(sdkroot) = Self::macos_sdk_root() {
                 let sdkroot = Path::new(&sdkroot);
                 new_cmd_args.extend_from_slice(&[
-                    "-I/usr/include".to_string(),
-                    "-L/usr/lib".to_string(),
-                    "-F/System/Library/Frameworks".to_string(),
-                    "-v".to_string(),
+                    format!("--sysroot={}", sdkroot.display()),
+                    format!("-I{}", sdkroot.join("usr").join("include").display()),
+                    format!("-L{}", sdkroot.join("usr").join("lib").display()),
+                    format!(
+                        "-F{}",
+                        sdkroot
+                            .join("System")
+                            .join("Library")
+                            .join("Frameworks")
+                            .display()
+                    ),
                 ]);
             }
         }
@@ -444,8 +451,15 @@ impl Zig {
                     if let Some(sdkroot) = Self::macos_sdk_root() {
                         cmd.env(
                             bindgen_env,
-                            format!("--sysroot={} -I/usr/include -L/usr/lib -F/System/Library/Frameworks",
-                                    sdkroot.display()),
+                            format!(
+                                "-I{} -F{} -DTARGET_OS_IPHONE=0",
+                                sdkroot.join("usr").join("include").display(),
+                                sdkroot
+                                    .join("System")
+                                    .join("Library")
+                                    .join("Frameworks")
+                                    .display()
+                            ),
                         );
                     }
                 }
