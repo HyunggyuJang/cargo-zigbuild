@@ -452,7 +452,8 @@ impl Zig {
                         cmd.env(
                             bindgen_env,
                             format!(
-                                "-I{} -F{} -DTARGET_OS_IPHONE=0",
+                                "--sysroot={} -I{} -F{}",
+                                sdkroot.display(),
                                 sdkroot.join("usr").join("include").display(),
                                 sdkroot
                                     .join("System")
