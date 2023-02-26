@@ -219,6 +219,8 @@ impl Zig {
             }
         }
 
+        println!("args {:#?}", new_cmd_args);
+
         let mut child = Self::command()?
             .arg(cmd)
             .args(new_cmd_args)
