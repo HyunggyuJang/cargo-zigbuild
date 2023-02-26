@@ -211,6 +211,7 @@ impl Zig {
             if let Some(sdkroot) = Self::macos_sdk_root() {
                 let sdkroot = Path::new(&sdkroot);
                 new_cmd_args.extend_from_slice(&[
+                    format!("--sysroot={}", sdkroot.display()),
                     format!("-I{}", sdkroot.join("usr").join("include").display()),
                     format!("-L{}", sdkroot.join("usr").join("lib").display()),
                     format!(
@@ -224,6 +225,8 @@ impl Zig {
                 ]);
             }
         }
+
+        println!("args {:#?}", new_cmd_args);
 
         let mut child = Self::command()?
             .arg(cmd)
@@ -446,7 +449,19 @@ impl Zig {
                     );
                 } else if raw_target.contains("apple-darwin") {
                     if let Some(sdkroot) = Self::macos_sdk_root() {
-                        cmd.env(bindgen_env, format!("--sysroot={}", sdkroot.display()));
+                        cmd.env(
+                            bindgen_env,
+                            format!(
+                                "--sysroot={} -I{} -F{}",
+                                sdkroot.display(),
+                                sdkroot.join("usr").join("include").display(),
+                                sdkroot
+                                    .join("System")
+                                    .join("Library")
+                                    .join("Frameworks")
+                                    .display()
+                            ),
+                        );
                     }
                 }
             }
