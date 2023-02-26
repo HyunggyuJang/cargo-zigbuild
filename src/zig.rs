@@ -146,6 +146,20 @@ impl Zig {
         };
 
         let mut new_cmd_args = Vec::with_capacity(cmd_args.len());
+
+        if is_macos {
+            if let Some(sdkroot) = Self::macos_sdk_root() {
+                let sdkroot = Path::new(&sdkroot);
+                new_cmd_args.extend_from_slice(&[
+                    format!("--sysroot={}", sdkroot.display()),
+                    "-I/usr/include".to_string(),
+                    "-L/usr/lib".to_string(),
+                    "-F/System/Library/Frameworks".to_string(),
+                    "-v".to_string(),
+                ]);
+            }
+        }
+
         for arg in cmd_args {
             let arg = if arg.starts_with('@') && arg.ends_with("linker-arguments") {
                 // rustc passes arguments to linker via an @-file when arguments are too long
@@ -205,18 +219,6 @@ impl Zig {
         }
         if has_undefined_dynamic_lookup(cmd_args) {
             new_cmd_args.push("-Wl,-undefined=dynamic_lookup".to_string());
-        }
-
-        if is_macos {
-            if let Some(sdkroot) = Self::macos_sdk_root() {
-                let sdkroot = Path::new(&sdkroot);
-                new_cmd_args.extend_from_slice(&[
-                    "-I/usr/include".to_string(),
-                    "-L/usr/lib".to_string(),
-                    "-F/System/Library/Frameworks".to_string(),
-                    "-v".to_string(),
-                ]);
-            }
         }
 
         println!("args {:#?}", new_cmd_args);
