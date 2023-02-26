@@ -211,7 +211,6 @@ impl Zig {
             if let Some(sdkroot) = Self::macos_sdk_root() {
                 let sdkroot = Path::new(&sdkroot);
                 new_cmd_args.extend_from_slice(&[
-                    format!("--sysroot={}", sdkroot.display()),
                     "-I/usr/include".to_string(),
                     "-L/usr/lib".to_string(),
                     "-F/System/Library/Frameworks".to_string(),
